@@ -4,10 +4,24 @@ This folder contains the production-ready chatbot backend build.
 
 ## 1. Install Ollama And Pull The Model
 
-Install Ollama on the server:
+Install Ollama for your platform.
+
+Linux or WSL:
 
 ```bash
 curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+macOS:
+
+```text
+https://ollama.ai/download
+```
+
+Windows:
+
+```text
+https://ollama.ai/download/windows
 ```
 
 Pull the required model:
