@@ -1,20 +1,22 @@
-# تشغيل Chatbot Backend بعد الـ Build
+# Chatbot Backend Production Build
 
-## 1. تثبيت الحزم
+This folder contains the production-ready chatbot backend build.
+
+## 1. Install Dependencies
 
 ```bash
-npm install
+npm install --omit=dev
 ```
 
-## 2. تجهيز ملف البيئة
+## 2. Configure Environment
 
-انسخ ملف الإعدادات وعدّل القيم حسب السيرفر:
+Copy the example environment file and update values for your server:
 
 ```bash
 cp .env.example .env
 ```
 
-أهم القيم داخل `.env`:
+Important values in `.env`:
 
 ```env
 PORT=8080
@@ -23,24 +25,27 @@ CORS_ORIGIN=https://your-frontend-domain.com
 SYNC_KEY=your_secret_key_min_32_chars_here_change_me
 ```
 
+Keep `.env` private and do not commit it to GitHub.
 
-## 3. تشغيل نسخة الـ Build
+## 3. Run The Build
 
 ```bash
 npm run start:dist
 ```
 
-## 4. التأكد أن السيرفر يعمل
+## 4. Check Health
 
-افتح الرابط التالي:
+Open this URL:
 
 ```bash
 http://localhost:8080/health
 ```
 
-إذا تم تغيير `PORT` في `.env`، استخدم نفس رقم البورت الجديد.
+If you change `PORT` in `.env`, use the updated port in the health URL.
 
-## ملاحظات مهمة
+## Notes
 
-- يجب وجود قاعدة البيانات أو تحديد مسارها في `DB_FILE`.
-- لتشغيل الشات بوت من الفرونت، تأكد أن `CORS_ORIGIN` يحتوي على رابط موقعك.
+- `dist/app.cjs` is the built application entry point.
+- `chatbot.db` must exist, or `DB_FILE` must point to the correct database path.
+- `CORS_ORIGIN` must match the frontend domain that will call the chatbot API.
+- Runtime folders such as `logs`, `backups`, and `exports` are intentionally ignored by Git.
