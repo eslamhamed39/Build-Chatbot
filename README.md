@@ -2,13 +2,33 @@
 
 This folder contains the production-ready chatbot backend build.
 
-## 1. Install Dependencies
+## 1. Install Ollama And Pull The Model
+
+Install Ollama on the server:
+
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+Pull the required model:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+Confirm Ollama is running:
+
+```bash
+ollama list
+```
+
+## 2. Install Dependencies
 
 ```bash
 npm install --omit=dev
 ```
 
-## 2. Configure Environment
+## 3. Configure Environment
 
 Copy the example environment file and update values for your server:
 
@@ -27,13 +47,13 @@ SYNC_KEY=your_secret_key_min_32_chars_here_change_me
 
 Keep `.env` private and do not commit it to GitHub.
 
-## 3. Run The Build
+## 4. Run The Build
 
 ```bash
 npm run start:dist
 ```
 
-## 4. Check Health
+## 5. Check Health
 
 Open this URL:
 
