@@ -1,0 +1,80 @@
+name: Deploy Chatbot Backend to Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chatbot-production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Windows, X64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          clean: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Production Dependencies (Cached)
+        shell: powershell
+        run: |
+          $lockHash = (Get-FileHash package-lock.json -Algorithm SHA256).Hash
+          $savedHashFile = 'node_modules\.package-lock.hash'
+          $savedHash = if (Test-Path $savedHashFile) { Get-Content $savedHashFile } else { '' }
+
+          if ((Test-Path 'node_modules') -and ($lockHash -eq $savedHash)) {
+              Write-Host "Dependencies did not change. Skipping npm ci."
+          } else {
+              Write-Host "Dependencies changed or missing. Running npm ci..."
+              npm ci --omit=dev --prefer-offline --no-audit --progress=false
+              Set-Content -Path $savedHashFile -Value $lockHash
+          }
+
+      - name: Publish to Target Directory
+        shell: powershell
+        run: |
+          $source = $env:GITHUB_WORKSPACE
+          $target = 'C:\Deployment\NGD_Interface\chatbot-backend'
+
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+
+          # Copy build and db files excluding .git, logs, backups, and preserving server .env
+          robocopy $source $target /E /Z /R:2 /W:5 /XD .git node_modules logs backups exports /XF .env /NFL /NDL /NJH /NJS /NP
+          if ($LASTEXITCODE -gt 7) { exit $LASTEXITCODE }
+
+          # Copy node_modules
+          if (Test-Path "$source\node_modules") {
+              robocopy "$source\node_modules" "$target\node_modules" /E /Z /R:2 /W:5 /NFL /NDL /NJH /NJS /NP
+              if ($LASTEXITCODE -gt 7) { exit $LASTEXITCODE }
+          }
+          exit 0
+
+      - name: Restart Chatbot Service / PM2
+        shell: powershell
+        run: |
+          $target = 'C:\Deployment\NGD_Interface\chatbot-backend'
+          Set-Location $target
+
+          if (Get-Command pm2 -ErrorAction SilentlyContinue) {
+              Write-Host "Restarting process with PM2..."
+              pm2 reload chatbot-backend --update-env 2>$null
+              if ($LASTEXITCODE -ne 0) {
+                  pm2 start dist/app.cjs --name chatbot-backend
+              }
+              pm2 save
+          } else {
+              Write-Host "PM2 not found. If running as Windows Service, restart it here (e.g. Restart-Service ChatbotBackend)."
+          }
