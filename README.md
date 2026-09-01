@@ -59,7 +59,6 @@ CORS_ORIGIN=https://your-frontend-domain.com
 SYNC_KEY=your_secret_key_min_32_chars_here_change_me
 ```
 
-Keep `.env` private and do not commit it to GitHub.
 
 ## 4. Run The Build
 
@@ -82,4 +81,3 @@ If you change `PORT` in `.env`, use the updated port in the health URL.
 - `dist/app.cjs` is the built application entry point.
 - `chatbot.db` must exist, or `DB_FILE` must point to the correct database path.
 - `CORS_ORIGIN` must match the frontend domain that will call the chatbot API.
-- Runtime folders such as `logs`, `backups`, and `exports` are intentionally ignored by Git.
