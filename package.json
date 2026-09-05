@@ -9,6 +9,7 @@
         "build": "node scripts/build.js",
         "build:plain": "OBFUSCATE_BUILD=false node scripts/build.js",
         "start:dist": "node dist/app.cjs",
+        "test": "node --test test/*.test.js",
         "export:interactions": "node scripts/exportInteractionsToCsv.js",
         "validate:interactions": "node scripts/validateInteractionLog.js"
     },
